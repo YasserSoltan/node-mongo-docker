@@ -2,6 +2,7 @@ const User = require("../models/user");
 const catchAsync = require("../utils/catchAsync");
 const { createError } = require("../utils/errorHandler");
 const jwt = require("jsonwebtoken");
+const jsend = require("../utils/jsend");
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -15,22 +16,7 @@ const sendTokenResponse = (user, statusCode, req, res) => {
   const token = generateToken(user._id);
   // Remove password from output
   user.password = undefined;
-
-  // res.cookie('jwt', token, {
-  //   expires: new Date(
-  //     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-  //   ),
-  //   httpOnly: true,
-  //   secure: req.secure || req.headers['x-forwarded-proto'] === 'https'
-  // });
-
-  res.status(statusCode).json({
-    status: "success",
-    token,
-    data: {
-      user,
-    },
-  });
+  jsend.success(res, { token, user }, statusCode);
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
@@ -51,7 +37,7 @@ exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
   if (!password || !email) return next(createError.badRequest("Please provide email and password"));
   const user = await User.findOne({ email }).select("+password");
-  if (!user) return res.status(404).json({ message: "User not found" });
+  if (!user) return next(createError.notFound("User not found"));
   const isMatch = await user.correctPassword(password, user.password);
   if (!isMatch) return next(createError.unauthorized("Incorrect password"));
   sendTokenResponse(user, 200, req, res);

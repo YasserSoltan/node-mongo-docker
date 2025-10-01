@@ -26,5 +26,12 @@ const BookSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+BookSchema.pre(/^find/, function(next) {
+  this.populate('createdBy').populate({
+    path: 'createdBy',
+    select: 'name email -_id'
+  });
+  next();
+});
 
 module.exports = mongoose.model("Book", BookSchema);

@@ -17,13 +17,13 @@ beforeEach(async () => {
         email: adminUser.email,
         password: adminUser.password
     })
-    adminToken = adminRes.body.token
+    adminToken = adminRes.body.data.token
     // login normal user
     const userRes = await request(app).post('/api/users/auth/login').send({
         email: normalUser.email,
         password: normalUser.password
     })
-    userToken = userRes.body.token
+    userToken = userRes.body.data.token
 })
 
 afterAll(async () => {
@@ -32,7 +32,7 @@ afterAll(async () => {
 
 test('Should list books (public)', async () => {
     const res = await request(app).get('/api/books').expect(200)
-    expect(Array.isArray(res.body)).toBe(true)
+    expect(Array.isArray(res.body.data.books)).toBe(true)
 })
 
 test('Should create a book when authenticated', async () => {
@@ -45,7 +45,7 @@ test('Should create a book when authenticated', async () => {
             amount: 3
         })
         .expect(201)
-    const book = await Book.findById(res.body._id)
+    const book = await Book.findById(res.body.data.book._id)
     expect(book).not.toBeNull()
 })
 
@@ -63,7 +63,7 @@ test('Should buy a book and decrement stock', async () => {
         .set('Authorization', `Bearer ${userToken}`)
         .send()
         .expect(200)
-    expect(res.body.message).toBe('Book purchased successfully')
+    expect(res.body.data.message).toBe('Book purchased successfully')
     const after = await Book.findById(adminBookId)
     expect(after.amount).toBe(before.amount - 1)
 })

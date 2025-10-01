@@ -6,25 +6,36 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    depends_on:
-      - mongo
+    # depends_on:
+    #   - mongo
     env_file:
       - .env.production
     environment:
       - NODE_ENV=production
-      - MONGO_URI=mongodb://mongo:27017/prod_db
+      - MONGO_URI=mongodb+srv://yassersoltan64_db_user:Yasser2379@cluster0.mvngsbh.mongodb.net/docker?retryWrites=true&w=majority&appName=Cluster0
+      - PORT=3000
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
       interval: 30s
       timeout: 10s
       retries: 5
       start_period: 10s
-  mongo:
-    image: mongo:latest
+  # mongo:
+  #   image: mongo:latest
+  #   ports:
+  #     - "27017:27017"
+  #   volumes:
+  #     - mongo-data:/data/db
+  mongo-express:
+    image: mongo-express:latest
     ports:
-      - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
+      - "0.0.0.0:8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb+srv://yassersoltan64_db_user:Yasser2379@cluster0.mvngsbh.mongodb.net/docker?retryWrites=true&w=majority&appName=Cluster0
+      - ME_CONFIG_BASICAUTH_USERNAME=admin
+      - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+    restart: unless-stopped
 volumes:
   mongo-data:
     driver: local

@@ -1,3 +1,5 @@
+const jsend = require("../utils/jsend");
+
 module.exports = (error, req, res, next) => {
   error.statusCode = error.statusCode || 500;
   error.status = error.status || "error";
@@ -12,25 +14,22 @@ module.exports = (error, req, res, next) => {
 
   // Development vs Production error response
   if (process.env.NODE_ENV === "development") {
-    res.status(error.statusCode).json({
-      status: error.status,
-      message: error.message,
-      error: error,
-      stack: error.stack,
-    });
-  } else {
-    // Production response
-    if (error.isOperational) {
-      res.status(error.statusCode).json({
-        status: error.status,
-        message: error.message,
-      });
-    } else {
-      // Programming or unknown errors
-      res.status(500).json({
-        status: error.status,
-        message: "Something went wrong!",
-      });
+    if (`${error.statusCode}`.startsWith("4")) {
+      return jsend.fail(res, { message: error.message, error }, error.statusCode);
     }
+    return jsend.error(
+      res,
+      error.message || "Internal Server Error",
+      error.statusCode,
+      error.code
+    );
+  } else {
+    if (error.isOperational) {
+      if (`${error.statusCode}`.startsWith("4")) {
+        return jsend.fail(res, { message: error.message }, error.statusCode);
+      }
+      return jsend.error(res, error.message, error.statusCode, error.code);
+    }
+    return jsend.error(res, "Something went wrong!", 500);
   }
 };

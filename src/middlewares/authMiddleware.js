@@ -12,9 +12,6 @@ exports.protect = catchAsync(async (req, res, next) => {
   ) {
     token = req.headers.authorization.split(" ")[1];
   }
-  // else if (req.cookies.jwt) {
-  //   token = req.cookies.jwt;
-  // }
   if (!token) {
     return next(
       createError.unauthorized(
@@ -32,7 +29,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     );
   }
   req.user = currentUser;
-  // res.locals.user = currentUser;
   next();
 });
 
@@ -48,16 +44,6 @@ exports.restrictTo = (...roles) => {
     next();
   };
 };
-
-// exports.isAdminOrOwner = (req, res, next) => {
-//   if (req.user.role !== "admin" && req.params.id !== req.user._id.toString()) {
-//     return next(
-//       createError.forbidden("You do not have permission to perform this action")
-//     );
-//   }
-//   next();
-// };
-
 
 exports.isAdminOrOwner = (Model, ownerField = "user") => {
   return catchAsync(async (req, res, next) => {

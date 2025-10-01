@@ -43,7 +43,7 @@ test('Should login existing user and receive token', async () => {
         email: adminUser.email,
         password: adminUser.password
     }).expect(200)
-    expect(response.body.token).toBeDefined()
+    expect(response.body.data.token).toBeDefined()
 })
 
 test('Should not login with wrong password', async () => {

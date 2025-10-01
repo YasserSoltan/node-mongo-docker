@@ -3,10 +3,11 @@ const Book = require("../models/book");
 const User = require("../models/user");
 const catchAsync = require("../utils/catchAsync");
 const { createError } = require("../utils/errorHandler");
+const jsend = require("../utils/jsend");
 
 exports.getAllBooks = catchAsync(async (req, res) => {
   const books = await Book.find();
-  res.status(200).json(books);
+  jsend.success(res, { books }, 200);
 });
 
 exports.createBook = catchAsync(async (req, res, next) => {
@@ -18,31 +19,30 @@ exports.createBook = catchAsync(async (req, res, next) => {
     createdBy: req.user._id,
     amount: req.body.amount,
   });
-  res.status(201).json(book);
+  jsend.success(res, { book }, 201);
 });
 
-exports.getBookById = catchAsync(async (req, res) => {
+exports.getBookById = catchAsync(async (req, res, next) => {
   const book = await Book.findById(req.params.id);
   if (!book) return next(createError.notFound("Book not found"));
-  res.status(200).json(book);
+  jsend.success(res, { book }, 200);
 });
 
-exports.updateBookById = catchAsync(async (req, res) => {
+exports.updateBookById = catchAsync(async (req, res, next) => {
   const book = await Book.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
   });
   if (!book) return next(createError.notFound("Book not found"));
-  res.status(200).json(book);
+  jsend.success(res, { book }, 200);
 });
 
-exports.deleteBookById = catchAsync(async (req, res) => {
+exports.deleteBookById = catchAsync(async (req, res, next) => {
   const book = await Book.findByIdAndDelete(req.params.id);
   if (!book) return next(createError.notFound("Book not found"));
-  res.status(200).json({ message: "Book deleted successfully" });
+  jsend.success(res, { message: "Book deleted successfully" }, 200);
 });
 
-// TODO: Implement buyBook controller
 exports.buyBook = catchAsync(async (req, res, next) => {
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -89,15 +89,11 @@ exports.buyBook = catchAsync(async (req, res, next) => {
       return next(createError.notFound("User not found"));
     }
     await session.commitTransaction();
-    res.status(200).json({
+    jsend.success(res, {
       message: "Book purchased successfully",
-      data: {
-        book: updatedBook,
-        user: {
-          books_bought_amount: updatedUser.books_bought_amount,
-        },
-      },
-    });
+      book: updatedBook,
+      user: { books_bought_amount: updatedUser.books_bought_amount },
+    }, 200);
   } catch (err) {
     await session.abortTransaction();
     console.error('Buy Book Transaction Error:', err);
