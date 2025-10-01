@@ -12,8 +12,7 @@ services:
       - .env.production
     environment:
       - NODE_ENV=production
-      - MONGO_URI=mongodb://mongo:27017/prod_db?replicaSet=rs0
-      - PORT=3000
+      - MONGO_URI=mongodb://mongo:27017/prod_db
     healthcheck:
       test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
       interval: 30s
@@ -22,23 +21,10 @@ services:
       start_period: 10s
   mongo:
     image: mongo:latest
-    command: ["mongod", "--replSet", "rs0", "--bind_ip_all"]
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
-      - ./mongo-init:/docker-entrypoint-initdb.d:ro
-  # Optional admin UI for MongoDB
-  mongo-express:
-    image: mongo-express:1
-    depends_on:
-      - mongo
-    ports:
-      - "8081:8081"
-    environment:
-      - ME_CONFIG_MONGODB_SERVER=mongo
-      - ME_CONFIG_MONGODB_PORT=27017
-      - ME_CONFIG_BASICAUTH=false
 volumes:
   mongo-data:
     driver: local
