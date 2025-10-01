@@ -22,6 +22,21 @@ exports.updateUserById = catchAsync(async (req, res, next) => {
   res.status(200).json(user);
 });
 
+exports.updateUserRole = catchAsync(async (req, res, next) => {
+  const { role } = req.body;
+  if (!role) return next(createError.badRequest("Please provide a role"));
+  const user = await User.findByIdAndUpdate(
+    req.params.id,
+    { role },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
+  if (!user) return next(createError.notFound("User not found"));
+  res.status(200).json(user);
+});
+
 exports.deleteUserById = catchAsync(async (req, res, next) => {
   const user = await User.findByIdAndDelete(req.params.id);
   if (!user) return next(createError.notFound("User not found"));

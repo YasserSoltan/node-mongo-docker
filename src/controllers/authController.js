@@ -41,7 +41,6 @@ exports.signup = catchAsync(async (req, res, next) => {
     email: req.body.email,
     password: req.body.password,
     age: req.body.age,
-    role: req.body.role,
   });
   sendTokenResponse(newUser, 201, req, res);
 });

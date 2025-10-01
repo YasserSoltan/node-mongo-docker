@@ -8,13 +8,18 @@ const router = express.Router();
 
 router.post("/auth/signup", authController.signup);
 router.post("/auth/login", authController.login);
-// router.get("/auth/logout", authController.logout);
 
 router.use(authMiddleware.protect);
 
 router
   .route("/")
   .get(authMiddleware.restrictTo("admin"), userController.getAllUsers);
+
+router.patch(
+  "/:id/role",
+  authMiddleware.restrictTo("admin"),
+  userController.updateUserRole
+);
 
 router
   .route("/:id")
