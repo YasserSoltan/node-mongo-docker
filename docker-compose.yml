@@ -29,7 +29,7 @@ services:
     ports:
       - "0.0.0.0:8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_URL=mongodb+srv://yassersoltan64_db_user:Yasser2379@cluster0.mvngsbh.mongodb.net/docker?retryWrites=true&w=majority&appName=Cluster0
+      - ME_CONFIG_MONGODB_URL=mongodb+srv://username:password@cluster0.mvngsbh.mongodb.net/db_name?retryWrites=true&w=majority&appName=cluster_name
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=admin123
       - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
