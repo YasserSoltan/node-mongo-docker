@@ -6,34 +6,36 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-    # depends_on:
-    #   - mongo
+    depends_on:
+      - mongo
     env_file:
       - .env.production
     environment:
       - NODE_ENV=production
-    healthcheck:
-      test: ["CMD", "wget", "--spider", "http://localhost:3000/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 10s
-  # mongo:
-  #   image: mongo:latest
-  #   ports:
-  #     - "27017:27017"
-  #   volumes:
-  #     - mongo-data:/data/db
+      - MONGO_URI=mongodb://mongo:27017/docker-book-store?replicaSet=rs0
+      - PORT=3000
+
+  mongo:
+    image: mongo:latest
+    command: ["--replSet", "rs0", "--bind_ip_all"]
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
   mongo-express:
     image: mongo-express:latest
     ports:
-      - "0.0.0.0:8081:8081"
+      - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_URL=YOUR_MONGO_URI
+      - ME_CONFIG_MONGODB_URL=mongodb://mongo:27017/
       - ME_CONFIG_BASICAUTH_USERNAME=admin
       - ME_CONFIG_BASICAUTH_PASSWORD=admin123
-      - ME_CONFIG_MONGODB_ENABLE_ADMIN=true
+    depends_on:
+      - mongo
     restart: unless-stopped
+
 volumes:
   mongo-data:
     driver: local
